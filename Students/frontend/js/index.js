@@ -105,7 +105,7 @@ function $getNewStudentTR(studObj) {
   return $tr;
 }
 
-function redner(arr) {
+function render(arr) {
   let copyArr = [...arr];
 
   const $studTable = document.getElementById("stud-table");
@@ -117,7 +117,7 @@ function redner(arr) {
   }
 }
 
-redner(listStudents);
+render(listStudents);
 
 // document
 //   .getElementById("add-form")
@@ -140,7 +140,7 @@ redner(listStudents);
 //     listStudents.push(serverDataObj);
 
 //     console.log(listStudents);
-//     redner(listStudents);
+//     render(listStudents);
 //   });
 document
   .getElementById("add-form")
@@ -188,7 +188,7 @@ document
     // Обработка ответа от сервера и обновление списка студентов
     serverDataObj.birthday = new Date(serverDataObj.birthday);
     listStudents.push(serverDataObj);
-    redner(listStudents);
+    render(listStudents);
   });
 //////////////////////////////////////////////////////////////////////////
 async function searchStudents(query) {

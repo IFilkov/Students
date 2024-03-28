@@ -27,6 +27,7 @@ async function serverDeleteSudent(id) {
   let response = await fetch(SERVER_URL + "/api/students/" + id, {
     method: "DELETE",
   });
+  location.reload();
 
   let data = await response.json();
 
@@ -189,6 +190,7 @@ document
     serverDataObj.birthday = new Date(serverDataObj.birthday);
     listStudents.push(serverDataObj);
     render(listStudents);
+    location.reload();
   });
 //////////////////////////////////////////////////////////////////////////
 async function searchStudents(query) {
@@ -228,3 +230,72 @@ document
     searchStudents(searchText); // Выполняем поиск
   });
 /////////////////////////////////////////////////////////////////////////
+// Состояние сортировки для каждой колонки
+let sortState = {
+  fio: null,
+  birthday: null,
+  studyStart: null,
+};
+
+// Функция сортировки
+function sortStudents(column) {
+  // определение направления сортировки
+  let sortDirection = sortState[column] === "asc" ? "desc" : "asc";
+  listStudents.sort((a, b) => {
+    let valueA, valueB;
+    if (column === "fio") {
+      valueA = `${a.lastname} ${a.name} ${a.surname}`.toLowerCase();
+      valueB = `${b.lastname} ${b.name} ${b.surname}`.toLowerCase();
+    } else {
+      valueA = new Date(a[column]);
+      valueB = new Date(b[column]);
+    }
+    if (valueA < valueB) return sortDirection === "asc" ? -1 : 1;
+    if (valueA > valueB) return sortDirection === "asc" ? 1 : -1;
+    return 0;
+  });
+  sortState[column] = sortDirection; // обновление состояния сортировки
+  render(listStudents); // перерисовка таблицы
+}
+
+// Функция для создания заголовка таблицы с сортировкой
+function createTableHeader() {
+  const thead = document.createElement("thead");
+  thead.innerHTML = `
+    <tr>
+      <th data-sort="fio">ФИО</th>
+      <th data-sort="birthday">Дата рождения</th>
+      <th data-sort="faculty">Факультет</th>
+      <th data-sort="studyStart">Год поступления</th>
+      <th></th>
+    </tr>
+  `;
+  // Добавление обработчиков событий для каждого заголовка
+  thead
+    .querySelector('[data-sort="fio"]')
+    .addEventListener("click", () => sortStudents("fio"));
+  thead
+    .querySelector('[data-sort="birthday"]')
+    .addEventListener("click", () => sortStudents("birthday"));
+  thead
+    .querySelector('[data-sort="studyStart"]')
+    .addEventListener("click", () => sortStudents("studyStart"));
+  return thead;
+}
+
+// Обновленная функция render для включения создания заголовков
+function renderSort(arr) {
+  const table = document.querySelector(".table");
+  table.innerHTML = ""; // очистка текущей таблицы
+  table.appendChild(createTableHeader()); // создание и добавление заголовков
+
+  const tbody = document.createElement("tbody");
+  tbody.id = "stud-table";
+  arr.forEach((studObj) => {
+    const $newTr = $getNewStudentTR(studObj);
+    tbody.appendChild($newTr);
+  });
+  table.appendChild(tbody); // добавление строк таблицы
+}
+
+renderSort(listStudents); // первоначальная отрисовка таблицы
